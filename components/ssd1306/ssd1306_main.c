@@ -26,7 +26,7 @@
 
 #define tag "SSD1306"
 
-void ssd1306_main(void)
+void * ssd1306_main(void * p)
 {
 	SSD1306_t dev;
 	int center, top, bottom;
