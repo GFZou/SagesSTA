@@ -37,6 +37,7 @@
 #include "ledc_main.h"
 #include "gpio5_relay.h"
 #include "dht11_main.h";
+#include "ssd1306_main.h"
 
 #include <esp_http_server.h>
 
@@ -445,8 +446,8 @@ void app_main(void)
     pthread_create(&t5, NULL, dht11_main, NULL);
 
     
-    //pthread_t t6;
-    //pthread_create(&t6, NULL, ssd1306_main, NULL);
+    pthread_t t6;
+    pthread_create(&t6, NULL, ssd1306_main, NULL);
     
     /* Main loop */
     while(true) {

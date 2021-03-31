@@ -180,6 +180,7 @@ void * ssd1306_main(void * p)
 	// Fade Out
 	ssd1306_fadeout(&dev);
 	
+	/*
 #if 0
 	// Fade Out
 	for(int contrast=0xff;contrast>0;contrast=contrast-0x20) {
@@ -187,7 +188,9 @@ void * ssd1306_main(void * p)
 		vTaskDelay(40);
 	}
 #endif
-
+	*/
 	// Restart module
-	esp_restart();
+	//esp_restart();
+	printf("ssd1306 end show");
+	return;
 }
