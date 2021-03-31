@@ -441,14 +441,14 @@ void app_main(void)
     pthread_t t4;
     pthread_create(&t4, NULL, ledc_main, NULL);
 
-    
     pthread_t t5;
     pthread_create(&t5, NULL, dht11_main, NULL);
 
-    
-    pthread_t t6;
-    pthread_create(&t6, NULL, ssd1306_main, NULL);
-    
+    //char haspayload[256]="";
+
+    //pthread_t t6;
+    //pthread_create(&t6, NULL, ssd1306_showTemp, (void *)&haspayload);
+	//xTaskCreate(ssd1306_main,"showTemp",configMINIMAL_STACK_SIZE,NULL,5,NULL);
     /* Main loop */
     while(true) {
         /* Get a line using linenoise.

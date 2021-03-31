@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <pthread.h>
 #include "esp_system.h"
 #include "esp_spi_flash.h"
 #include "esp_wifi.h"
@@ -13,6 +14,7 @@
 #include "driver/uart.h"
 #include "driver/gpio.h"
 #include "string.h"
+#include "ssd1306_main.h"
  
 #define DHT11_PIN   8//定义DHT11的引脚
  
@@ -27,6 +29,8 @@ uchar ucharT_data_H,ucharT_data_L,ucharRH_data_H,ucharRH_data_L,ucharcheckdata;
 uchar ucharT_data_H_temp,ucharT_data_L_temp,ucharRH_data_H_temp,ucharRH_data_L_temp,ucharcheckdata_temp;
 uchar ucharcomdata;
  
+ 
+static char haspayload[256]="";
 static void InputInitial(void)//设置端口为输入
 {
   gpio_pad_select_gpio(DHT11_PIN);
@@ -150,11 +154,14 @@ void DHT11(void)   //温湿传感启动
 void * dht11_main(void * p)
 {
     char dht11_buff[50]={0};
- 
     while(1)
     {
       DHT11(); //读取温湿度
       printf("Temp=%d.%d℃--Humi=%d.%d%%RH \r\n", Temp,Temp_small,Humi,Humi_small);
+      sprintf(haspayload," T=%d.%d-H=%d.%dRH ", Temp,Temp_small,Humi,Humi_small);
+      printf(haspayload);
+      pthread_t t6;
+      pthread_create(&t6, NULL, ssd1306_showTemp, (void *)&haspayload);
       vTaskDelay(600000);  //延时300毫秒
     }
 }
