@@ -36,8 +36,9 @@
 #include "led_strip_main.h"
 #include "ledc_main.h"
 #include "gpio5_relay.h"
-#include "dht11_main.h";
+#include "dht11_main.h"
 #include "ssd1306_main.h"
+#include "mqtt_main.h"
 
 #include <esp_http_server.h>
 
@@ -182,7 +183,6 @@ void * led_status_thread(void * p)
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
 }
-
 
 static esp_err_t wifi_event_handler(void *ctx, system_event_t *event)
 {
@@ -449,6 +449,9 @@ void app_main(void)
     //pthread_t t6;
     //pthread_create(&t6, NULL, ssd1306_showTemp, (void *)&haspayload);
 	//xTaskCreate(ssd1306_main,"showTemp",configMINIMAL_STACK_SIZE,NULL,5,NULL);
+    
+    pthread_t t7;
+    pthread_create(&t7, NULL, mqtt_main, NULL);
     /* Main loop */
     while(true) {
         /* Get a line using linenoise.
