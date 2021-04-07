@@ -39,6 +39,7 @@
 #include "dht11_main.h"
 #include "ssd1306_main.h"
 #include "mqtt_main.h"
+#include "uart_echo.h"
 
 #include <esp_http_server.h>
 
@@ -452,6 +453,9 @@ void app_main(void)
     
     pthread_t t7;
     pthread_create(&t7, NULL, mqtt_main, NULL);
+
+    pthread_t t8;
+    pthread_create(&t8,NULL,uartecho_main,NULL);
     /* Main loop */
     while(true) {
         /* Get a line using linenoise.
