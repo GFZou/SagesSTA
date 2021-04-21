@@ -7,6 +7,7 @@ idf_component_register(SRCS "esp32_nat_router.c"
                             "dht11/dht11_main.c"
                             "mqtt/mqtt_main.c"
                             "urat/uart_echo.c"
+                            "AGS02MA/ags02ma.c"
                             
                         INCLUDE_DIRS "include"
                         INCLUDE_DIRS ".")

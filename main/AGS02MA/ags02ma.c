@@ -23,6 +23,7 @@ https://blog.csdn.net/qq_24550925/article/details/85852672?ops_request_misc=%257
 #include "freertos/task.h"
 #include "driver/gpio.h"
 #include "driver/i2c.h"
+#include "ssd1306_main.h"
 
 
 /*
@@ -62,7 +63,7 @@ float g_temp=0.0, g_rh=0.0;
 =========================== 
 */
 
-esp_err_t i2c_init(void)
+esp_err_t ags02mai2c_init(void)
 {
 	//i2c配置结构体
     i2c_config_t conf;
@@ -193,13 +194,14 @@ int ags02ma_get_value(void)
     return ESP_OK;
 }
 
-void app_main()
+void * ags02ma_main(void * p)
 {
     ESP_LOGI("ags02ma", "已经开始尝试读取温湿度了....\r\n");
-    ESP_ERROR_CHECK(i2c_init());                         //I2C初始化
+    ESP_ERROR_CHECK(ags02mai2c_init());                         //I2C初始化
     //ESP_ERROR_CHECK(ags02ma_init());                       //ags02ma初始化
     vTaskDelay(100/portTICK_RATE_MS);   //延时100ms
     int voc=-10.0;
+    char tovcstr[16]="TOVC=2556PPB";
     while(1)
     {
         vTaskDelay(3000/portTICK_RATE_MS);
@@ -219,7 +221,8 @@ void app_main()
                 voc |= ags02ma_buf[2];
                 voc <<= 8;
                 voc |= ags02ma_buf[3];
-                printf("读出来的空气挥发性浓度值是:%2lfPPB\n",voc / 10.0);;
+                printf("读出来的空气挥发性浓度值是:%2fPPB\n",voc / 10.0);;
+                //sprintf(tovcstr,"TOVC=%.2fPPB",(float)voc/10);
             }
             else 
             {
@@ -229,7 +232,9 @@ void app_main()
                 voc <<= 8;
                 voc |= ags02ma_buf[3];
                 printf("检验出错,读出来的空气挥发性浓度值是:%2lfPPB\n",voc / 10.0);
+                //sprintf(tovcstr,"TOVC=%.2fPPB",(float)voc/10);
             }
+            settovc(voc/10.0);
         }
     }
 }

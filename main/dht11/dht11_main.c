@@ -16,7 +16,7 @@
 #include "string.h"
 #include "ssd1306_main.h"
  
-#define DHT11_PIN   8//定义DHT11的引脚
+#define DHT11_PIN   26//定义DHT11的引脚
  
 #define uchar unsigned char
 #define uint8 unsigned char
@@ -153,16 +153,17 @@ void DHT11(void)   //温湿传感启动
  
 void * dht11_main(void * p)
 {
-    char dht11_buff[50]={0};
     while(1)
     {
       DHT11(); //读取温湿度
       printf("Temp=%d.%d℃--Humi=%d.%d%%RH \r\n", Temp,Temp_small,Humi,Humi_small);
-      sprintf(haspayload," T=%d.%d-H=%d.%dRH ", Temp,Temp_small,Humi,Humi_small);
-      printf(haspayload);
-      pthread_t t6;
-      pthread_create(&t6, NULL, ssd1306_showTemp, (void *)&haspayload);
-      vTaskDelay(600000);  //延时300毫秒
+      sprintf(haspayload," T=%d.%d-H=%d.%dRH \n", Temp,Temp_small,Humi,Humi_small);
+      settemp(Temp,Temp_small);
+      sethumi(Humi,Humi_small);
+      //printf(haspayload);
+      //pthread_t t6;
+      //pthread_create(&t6, NULL, ssd1306_showTemp, (void *)&haspayload);
+      vTaskDelay(5000);  //延时300毫秒
     }
 }
  

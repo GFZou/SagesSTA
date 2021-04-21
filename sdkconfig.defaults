@@ -1,5 +1,4 @@
 # Reduce bootloader log verbosity
-CONFIG_BOOTLOADER_LOG_LEVEL_WARN=y
 CONFIG_BOOTLOADER_LOG_LEVEL=2
 
 # Increase main task stack size

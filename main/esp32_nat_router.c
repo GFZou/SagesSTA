@@ -40,6 +40,7 @@
 #include "ssd1306_main.h"
 #include "mqtt_main.h"
 #include "uart_echo.h"
+#include "ags02ma.h"
 
 #include <esp_http_server.h>
 
@@ -202,6 +203,7 @@ static esp_err_t wifi_event_handler(void *ctx, system_event_t *event)
             ESP_LOGI(TAG, "set dns to:" IPSTR, IP2STR(&dns.ip.u_addr.ip4));
         }
         xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
+        setnetinfo(0,1);
         break;
     case SYSTEM_EVENT_STA_DISCONNECTED:
         ESP_LOGI(TAG,"disconnected - retry to connect to the AP");
@@ -216,6 +218,7 @@ static esp_err_t wifi_event_handler(void *ctx, system_event_t *event)
     case SYSTEM_EVENT_AP_STADISCONNECTED:
         connect_count--;
         ESP_LOGI(TAG,"station disconnected - %d remain", connect_count);
+        setnetinfo(0,0);
         break;
     default:
         break;
@@ -435,27 +438,24 @@ void app_main(void)
     pthread_t t2;
     pthread_create(&t2, NULL, relay_main, NULL);
     //xTaskCreatePinnedToCore(relay_main2,"relay_main2",1024,NULL,1,NULL ,0);
-
     pthread_t t3;
     pthread_create(&t3, NULL, ws2812_main, NULL);
-
     pthread_t t4;
     pthread_create(&t4, NULL, ledc_main, NULL);
-
     pthread_t t5;
     pthread_create(&t5, NULL, dht11_main, NULL);
-
     //char haspayload[256]="";
-
     //pthread_t t6;
     //pthread_create(&t6, NULL, ssd1306_showTemp, (void *)&haspayload);
-	//xTaskCreate(ssd1306_main,"showTemp",configMINIMAL_STACK_SIZE,NULL,5,NULL);
-    
+	//xTaskCreate(ssd1306_main,"showTemp",configMINIMAL_STACK_SIZE,NULL,5,NULL);    
     pthread_t t7;
     pthread_create(&t7, NULL, mqtt_main, NULL);
-
-    pthread_t t8;
-    pthread_create(&t8,NULL,uartecho_main,NULL);
+    //pthread_t t8;
+    //pthread_create(&t8,NULL,uartecho_main,NULL);    
+    pthread_t t9;
+    pthread_create(&t9,NULL,ags02ma_main,NULL);
+    pthread_t t10;
+    pthread_create(&t10,NULL,ssd1306_showinfo,NULL);
     /* Main loop */
     while(true) {
         /* Get a line using linenoise.

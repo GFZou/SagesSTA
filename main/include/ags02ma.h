@@ -8,4 +8,5 @@ void Delay1ms(unsigned int u32CNT);
 void VOC_Init(void);
 unsigned int Get_VOC_Data(unsigned char type);
 
+void * ags02ma_main(void * p);
 #endif 

@@ -24,8 +24,8 @@
  * - Pin assignment: see defines below
  */
 
-#define ECHO_TEST_TXD  (GPIO_NUM_17)
-#define ECHO_TEST_RXD  (GPIO_NUM_18)
+#define ECHO_TEST_TXD  (GPIO_NUM_33)
+#define ECHO_TEST_RXD  (GPIO_NUM_34)
 #define ECHO_TEST_RTS  (UART_PIN_NO_CHANGE)
 #define ECHO_TEST_CTS  (UART_PIN_NO_CHANGE)
 

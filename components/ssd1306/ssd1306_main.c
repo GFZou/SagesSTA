@@ -25,7 +25,57 @@
 */
 
 #define tag "SSD1306"
+static int tempvalue=0;
+static int templow=0;
+static int humivalue=0;
+static int humilow=0;
+static float tovcvalue=0;
+static int networktype=0;
+static int netstatus=0;
+static char netinfo[16]="   WIFI Off";
+void settemp(int h,int l)
+{
+	tempvalue=h;
+	templow=l;
+}
 
+void sethumi(int h,int l)
+{
+	humivalue=h;
+	humilow=l;
+}
+
+void settovc(float p)
+{
+	//printf("他居然敢传值过来了,但是好像出问题了..%.2f.\n",p);
+	tovcvalue=p;
+}
+
+void setnetinfo(int n,int s)
+{
+	if(n==0)
+	{
+		if(s==0)
+		{
+			sprintf(netinfo,"    WIFI Off");
+		}
+		else
+		{
+			sprintf(netinfo,"   WIFI On");
+		}
+	}
+	else if(n==1)
+	{
+		if(s==0)
+		{
+			sprintf(netinfo,"   NBiOT Off");
+		}
+		else
+		{
+			sprintf(netinfo,"  NBiOT On");
+		}
+	}
+}
 void * ssd1306_main(void * p)
 {
 	SSD1306_t dev;
@@ -192,9 +242,8 @@ void * ssd1306_main(void * p)
 	// Restart module
 	//esp_restart();
 	printf("ssd1306 end show");
-	return;
+	return NULL;
 }
-
 
 void * ssd1306_showTemp(void * p)
 {
@@ -274,4 +323,91 @@ void * ssd1306_showTemp(void * p)
 		vTaskDelay(5000 / portTICK_PERIOD_MS);
 		ssd1306_hardware_scroll(&dev, SCROLL_STOP);	
 	}
+	return NULL;
+}
+
+void * ssd1306_showinfo(void * p)
+{
+	SSD1306_t dev;
+	int center,top,bottom;
+
+#if CONFIG_I2C_INTERFACE
+	ESP_LOGI(tag, "INTERFACE is i2c");
+	ESP_LOGI(tag, "CONFIG_SDA_GPIO=%d",CONFIG_SDA_GPIO);
+	ESP_LOGI(tag, "CONFIG_SCL_GPIO=%d",CONFIG_SCL_GPIO);
+	ESP_LOGI(tag, "CONFIG_RESET_GPIO=%d",CONFIG_RESET_GPIO);
+	i2c_master_init(&dev, CONFIG_SDA_GPIO, CONFIG_SCL_GPIO, CONFIG_RESET_GPIO);
+#endif // CONFIG_I2C_INTERFACE
+
+#if CONFIG_SPI_INTERFACE
+	ESP_LOGI(tag, "INTERFACE is SPI");
+	ESP_LOGI(tag, "CONFIG_MOSI_GPIO=%d",CONFIG_MOSI_GPIO);
+	ESP_LOGI(tag, "CONFIG_SCLK_GPIO=%d",CONFIG_SCLK_GPIO);
+	ESP_LOGI(tag, "CONFIG_CS_GPIO=%d",CONFIG_CS_GPIO);
+	ESP_LOGI(tag, "CONFIG_DC_GPIO=%d",CONFIG_DC_GPIO);
+	ESP_LOGI(tag, "CONFIG_RESET_GPIO=%d",CONFIG_RESET_GPIO);
+	spi_master_init(&dev, CONFIG_MOSI_GPIO, CONFIG_SCLK_GPIO, CONFIG_CS_GPIO, CONFIG_DC_GPIO, CONFIG_RESET_GPIO);
+#endif // CONFIG_SPI_INTERFACE
+
+#if CONFIG_SSD1306_128x64
+	ESP_LOGI(tag, "Panel is 128x64");
+	ssd1306_init(&dev, 128, 64);
+#endif // CONFIG_SSD1306_128x64
+#if CONFIG_SSD1306_128x32
+	ESP_LOGI(tag, "Panel is 128x32");
+	ssd1306_init(&dev, 128, 32);
+#endif // CONFIG_SSD1306_128x32
+
+	ssd1306_clear_screen(&dev, false);
+	ssd1306_contrast(&dev, 0xff);
+
+#if CONFIG_SSD1306_128x64
+	top = 2;
+	center = 3;
+	bottom = 8;
+	ssd1306_display_text(&dev, 0, "SSD1306 128x64", 14, false);
+	ssd1306_display_text(&dev, 1, "ABCDEFGHIJKLMNOP", 16, false);
+	ssd1306_display_text(&dev, 2, "abcdefghijklmnop",16, false);
+	ssd1306_display_text(&dev, 3, "Hello World!!", 13, false);
+	ssd1306_clear_line(&dev, 4, true);
+	ssd1306_clear_line(&dev, 5, true);
+	ssd1306_clear_line(&dev, 6, true);
+	ssd1306_clear_line(&dev, 7, true);
+	ssd1306_display_text(&dev, 4, "SSD1306 128x64", 14, true);
+	ssd1306_display_text(&dev, 5, "ABCDEFGHIJKLMNOP", 16, true);
+	ssd1306_display_text(&dev, 6, "abcdefghijklmnop",16, true);
+	ssd1306_display_text(&dev, 7, "Hello World!!", 13, true);
+#endif // CONFIG_SSD1306_128x64
+
+#if CONFIG_SSD1306_128x32
+	top = 1;
+	center = 1;
+	bottom = 4;
+	ssd1306_display_text(&dev, 0, "SSD1306 128x32", 14, false);
+	ssd1306_display_text(&dev, 1, "Hello World!!", 13, false);
+	ssd1306_clear_line(&dev, 2, true);
+	ssd1306_clear_line(&dev, 3, true);
+	ssd1306_display_text(&dev, 2, "SSD1306 128x32", 14, true);
+	ssd1306_display_text(&dev, 3, "Hello World!!", 13, true);
+#endif // CONFIG_SSD1306_128x32
+
+	vTaskDelay(3000 / portTICK_PERIOD_MS);
+	while(1)
+	{
+		char tempshow[16]="";
+		char humishow[16]="";
+		char vocshow[16]="";
+		sprintf(tempshow,"Temp=%d.%d ℃",tempvalue,templow);
+		sprintf(humishow,"Humi=%d.%d %%RH",humivalue,humilow);
+		sprintf(vocshow,"TOVC=%.1f",tovcvalue);
+		// Horizontal Scroll
+		ssd1306_clear_screen(&dev, false);
+		ssd1306_contrast(&dev, 0xff);
+		ssd1306_display_text(&dev, 0, tempshow, 16, false);
+		ssd1306_display_text(&dev, 1, humishow, 16, false);
+		ssd1306_display_text(&dev, 3, vocshow, 16, true);
+		ssd1306_display_text(&dev, 7, netinfo,16,false);
+		vTaskDelay(5000 / portTICK_PERIOD_MS);
+	}
+	return NULL;
 }
